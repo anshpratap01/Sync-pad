@@ -525,7 +525,7 @@ While examining the codebase, here are a few key implementation observations and
 
 ## 13. Author & Credits
 
-- **Author:** Amitava Biswas
+- **Author:** Ansh Pratap
 - **Core Technologies:**
   - [Yjs Project](https://github.com/yjs/yjs) by Kevin Jahns
   - [Monaco Editor](https://github.com/microsoft/monaco-editor) by Microsoft
