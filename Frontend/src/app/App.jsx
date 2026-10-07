@@ -1,7 +1,7 @@
 import "./App.css"
 import { Editor } from "@monaco-editor/react"
 import { MonacoBinding } from "y-monaco"
-import { useRef, useMemo, useState, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
 import * as Y from "yjs"
 import { SocketIOProvider } from "y-socket.io"
 
@@ -13,7 +13,7 @@ function App(){
 
 
 
-  const editorRef = useRef(null)
+  const [editor, setEditor] = useState(null)
   const [ username, setUsername ] = useState(()=>{
     return new URLSearchParams(window.location.search).get("username") || ""
   })
@@ -24,7 +24,7 @@ function App(){
   const ytext = useMemo(() => ydoc.getText("monaco"), [ydoc])
 
   const handleMount = (editor) => {
-    editorRef.current = editor
+    setEditor(editor)
 
   }
 
@@ -37,7 +37,7 @@ function App(){
 
   useEffect(()=>{
 
-    if(username && editorRef.current){
+    if(username && editor){
 
       const provider = new SocketIOProvider("http://localhost:3000", "monaco-demo", ydoc, {
       autoConnect: true,
@@ -47,7 +47,7 @@ function App(){
     provider.awareness.on("change", ()=>{
 
       const states = Array.from(provider.awareness.getStates().values())
-      setUsers(states.filter(user => user && user.username).map(state => state.user))
+    setUsers(states.filter(state => state?.user?.username).map(state => state.user))
       
     })
 
@@ -61,22 +61,22 @@ function App(){
 
     const monacoBinding = new MonacoBinding(
       ytext,
-      editorRef.current.getModel(),
-      new Set([editorRef.current]),
+      editor.getModel(),
+      new Set([editor]),
        provider.awareness)
-
-    }
 
     return ()=> {
       monacoBinding.destroy()
       provider.disconnect()
       window.removeEventListener("beforeunload", handleBeforeUnload)
     }
-
+    }
   },
   [
-    editorRef.current,
-    username
+    editor,
+    username,
+    ydoc,
+    ytext
   ])
 
  if(!username){
@@ -109,10 +109,10 @@ function App(){
     <aside
       className="h-full w-1/4 bg-amber-50 rounded-lg"
     >
-      <h2 classname="test-2xl font-bold p-4 border-b border-gray-300"></h2>
+      <h2 className="text-2xl font-bold p-4 border-b border-gray-300">Users</h2>
       <ul className="p-4">
         {users.map((user, index) => {
-          <li key={index} className="p-2 bg-gray-800 text-white rounded mb-2">
+          return <li key={index} className="p-2 bg-gray-800 text-white rounded mb-2">
             {user.username}
           </li>
         })}
